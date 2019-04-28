@@ -14,7 +14,6 @@
 *.userprefs
 
 !/**/.gitkeep
-
 # Mono auto generated files
 mono_crash.*
 
@@ -29,6 +28,7 @@ x86/
 [Aa][Rr][Mm]64/
 bld/
 [Bb]in/
+!/[Bb]in/data/*
 [Oo]bj/
 [Ll]og/
 
