@@ -38,4 +38,5 @@ class ofApp : public ofBaseApp{
 		vector<ofVec2f> debriPositions;
 		ofVboMesh debriMesh;
 		ofShader debriShader;
+		ofCamera camera;
 };

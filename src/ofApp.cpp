@@ -1,38 +1,29 @@
 #include "ofApp.h"
 
 //--------------------------------------------------------------
-ofVboMesh createCircle()
+ofVboMesh createCircle(int res, float radius)
 {
 	ofVboMesh mesh;
 
-	int nvert = 8;
-	float a = 1.0f / (float)nvert;
+	int nvert = res;
+	float a = 360.0f / (float)nvert;
 	double ca = cos(1. / nvert);
 	double sa = sin(1. / nvert);
-	ofVec3f p = ofVec3f(0, 1, 0) * .5;
+	ofVec3f p = ofVec3f(0, 1, 0) * radius;
 	ofMatrix3x3 rot = ofMatrix3x3(ca, sa, 0, -sa, ca, 0, 0, 0, 1);
-	/*
-	mesh.addVertex(ofVec3f(-.5, -.5, 0));
-	mesh.addVertex(ofVec3f(-.5, .5, 0));
-	mesh.addVertex(ofVec3f( .5, .5, 0));
-	mesh.addVertex(ofVec3f( .5, -.5, 0));
 
-	mesh.addIndex(0);
-	mesh.addIndex(1);
-	mesh.addIndex(2);
-	mesh.addIndex(2);
-	mesh.addIndex(3);
-	mesh.addIndex(0);
-	*/
 	for (int i = 0; i < nvert; ++i)
 	{
 		mesh.addVertex(p);
 		p = p.rotate(a, ofVec3f(0, 0, 1));
 
-		cout << "point " << p << std::endl;
-		mesh.addIndex(i);
+		if (i > 1)
+		{
+			mesh.addIndex(0);
+			mesh.addIndex(i - 1);
+			mesh.addIndex(i);
+		}
 	}
-	mesh.addIndex(0);
 
 	return mesh;
 }
@@ -53,8 +44,15 @@ void ofApp::setup(){
 	this->debriShader.begin();
 	this->debriShader.setUniformTexture("debriPositions", this->textureBuffer, 0);
 	this->debriShader.end();
+	
+	this->debriMesh = createCircle(5, 10);
+	
+	//camera.enableOrtho();
+	camera.setPosition(glm::vec3(0, 0, -60));
+	camera.lookAt(glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	camera.setNearClip(1);
+	camera.setFarClip(ofGetWidth() * 120);
 
-	this->debriMesh = createCircle();
 }
 
 //--------------------------------------------------------------
@@ -80,24 +78,30 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	ofBackground(20);
+
+	camera.begin();
 	//ofSetupScreenOrtho(this->windowSize.x, this->windowSize.y);
-	//ofPushMatrix();
 	
 	int count = this->SpaceSimulation.MovingObjectCount;
+	//ofTranslate(this->halfWindowSize);
 	/*
-	ofTranslate(this->halfWindowSize);
 	for (int i = 0; i < count; ++i)
 	{
 		ofDrawCircle(this->SpaceSimulation.MovingSpaceObjects[i].position, 5);
 	}
 	*/
 
-
 	debriShader.begin();
-	debriMesh.draw(OF_MESH_WIREFRAME);
+
+	//debriShader.setUniformMatrix4f("WorldMatrix", ofGetCurrentMatrix(ofMatrixMode::OF_MATRIX_MODELVIEW) );
+	ofSetColor(ofColor::white);
+	debriMesh.draw(OF_MESH_FILL);
 
 	//debriMesh.drawInstanced(OF_MESH_POINTS, count);
 	debriShader.end();
+
+	camera.end();
 
 //	ofPopMatrix();
 }
